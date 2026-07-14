@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>YouTube 影片標題產生器</title>
+
+  <!-- CDN:Tailwind CSS / Fuse.js（模糊搜尋）/ 資料 / 設定 / 邏輯 / Alpine.js -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
+  <script src="data/iidx-songs.js"></script>
+  <script src="js/games.js"></script>
+  <script src="js/app.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
+  <style>
+    [x-cloak] { display: none !important; }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100 antialiased">
+  <div x-data="titleGen" x-cloak class="mx-auto max-w-2xl px-4 py-8 sm:py-12">
+
+    <header class="mb-8">
+      <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">🎬 YouTube 影片標題產生器</h1>
+      <p class="mt-1 text-sm text-slate-400">選擇條件後搜尋歌曲，一鍵複製標題。</p>
+    </header>
+
+    <!-- 遊戲選擇（為未來多遊戲預留） -->
+    <section class="mb-6">
+      <label class="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-400">遊戲</label>
+      <select x-model="gameId"
+              class="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none">
+        <template x-for="(g, id) in window.GAMES" :key="id">
+          <option :value="id" x-text="g.label"></option>
+        </template>
+      </select>
+    </section>
+
+    <!-- 步驟一:模式 -->
+    <section class="mb-6">
+      <h2 class="mb-2 text-sm font-semibold text-slate-300">1. 模式</h2>
+      <div class="flex gap-2">
+        <template x-for="m in game.modes" :key="m">
+          <button type="button" @click="setMode(m)"
+                  :class="mode === m ? 'bg-sky-600 border-sky-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500'"
+                  class="flex-1 rounded-lg border px-4 py-2 text-sm font-medium transition"
+                  x-text="m"></button>
+        </template>
+      </div>
+    </section>
+
+    <!-- 步驟二:難度 -->
+    <section class="mb-6">
+      <h2 class="mb-2 text-sm font-semibold text-slate-300">2. 難度</h2>
+      <div class="grid grid-cols-2 gap-2 sm:grid-cols-5">
+        <template x-for="d in game.difficulties" :key="d.code">
+          <button type="button" @click="setDiff(d.code)"
+                  :class="diffCode === d.code ? 'bg-sky-600 border-sky-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500'"
+                  class="rounded-lg border px-2 py-2 text-xs font-medium transition"
+                  x-text="d.name"></button>
+        </template>
+      </div>
+    </section>
+
+    <!-- 步驟三:Clear -->
+    <section class="mb-6">
+      <h2 class="mb-2 text-sm font-semibold text-slate-300">3. Clear 類型</h2>
+      <div class="flex flex-wrap gap-2">
+        <template x-for="c in game.clears" :key="c">
+          <button type="button" @click="clear = c; copied = false"
+                  :class="clear === c ? 'bg-sky-600 border-sky-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500'"
+                  class="rounded-lg border px-4 py-2 text-sm font-medium transition"
+                  x-text="c"></button>
+        </template>
+      </div>
+    </section>
+
+    <!-- 步驟四:搜尋歌曲 -->
+    <section class="mb-6">
+      <h2 class="mb-2 text-sm font-semibold text-slate-300">4. 搜尋歌曲</h2>
+      <template x-if="!chartKey">
+        <p class="rounded-lg border border-dashed border-slate-700 px-3 py-3 text-sm text-slate-500">
+          請先選擇「模式」與「難度」，才會依譜面過濾搜尋結果。
+        </p>
+      </template>
+      <div x-show="chartKey">
+        <input x-model="query" type="text" placeholder="輸入曲名 / 曲風 / artist…（模糊搜尋）"
+               class="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none" />
+        <p class="mt-1 text-xs text-slate-500">
+          僅顯示有
+          <span class="font-mono text-slate-300" x-text="chartKey"></span>
+          譜面的歌曲。
+        </p>
+
+        <ul class="mt-3 max-h-72 space-y-1 overflow-y-auto rounded-lg border border-slate-800 p-1">
+          <template x-for="s in results" :key="s.key">
+            <li>
+              <button type="button" @click="selectSong(s)"
+                      :class="selectedSong && selectedSong.key === s.key ? 'bg-sky-600/20 ring-1 ring-sky-500' : 'hover:bg-slate-800'"
+                      class="flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-left transition">
+                <span class="min-w-0">
+                  <span class="block truncate text-sm text-slate-100" x-text="s.title"></span>
+                  <span class="block truncate text-xs text-slate-500" x-text="s.artist"></span>
+                </span>
+                <span class="shrink-0 rounded bg-slate-800 px-2 py-0.5 font-mono text-xs text-sky-300">
+                  <span x-text="chartKey"></span> ☆<span x-text="levelOf(s)"></span>
+                </span>
+              </button>
+            </li>
+          </template>
+          <template x-if="results.length === 0">
+            <li class="px-3 py-4 text-center text-sm text-slate-500">找不到符合的歌曲。</li>
+          </template>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 結果:標題 + 複製 -->
+    <section class="mt-8">
+      <h2 class="mb-2 text-sm font-semibold text-slate-300">產生的標題</h2>
+      <template x-if="!ready">
+        <p class="rounded-lg border border-dashed border-slate-700 px-3 py-4 text-sm text-slate-500">
+          完成上面 4 個步驟後，這裡會出現標題。
+        </p>
+      </template>
+      <div x-show="ready" class="rounded-lg border border-slate-700 bg-slate-900 p-3">
+        <p class="break-all font-mono text-sm text-emerald-300" x-text="title"></p>
+        <button type="button" @click="copy()"
+                :class="copied ? 'bg-emerald-600' : 'bg-sky-600 hover:bg-sky-500'"
+                class="mt-3 w-full rounded-lg px-4 py-2 text-sm font-semibold text-white transition">
+          <span x-text="copied ? '✓ 已複製' : '複製標題'"></span>
+        </button>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
