@@ -10,7 +10,6 @@ window.GAMES = {
     modes: ['SP', 'DP'],
     // 步驟二:難度(name = 顯示用,code = 標題代碼)
     difficulties: [
-      { name: 'BEGINNER',    code: 'B' },
       { name: 'NORMAL',      code: 'N' },
       { name: 'HYPER',       code: 'H' },
       { name: 'ANOTHER',     code: 'A' },
@@ -18,6 +17,8 @@ window.GAMES = {
     ],
     // 步驟三:Clear 類型
     clears: ['NORMAL CLEAR', 'HARD CLEAR', 'FULL COMBO'],
+    // 初始預選組合
+    defaults: { mode: 'DP', diffCode: 'A', clear: 'HARD CLEAR' },
     // 模糊搜尋要比對的欄位
     searchKeys: ['title', 'artist', 'genre', 'key'],
     // 由 (模式, 難度) 組出 charts 的 key,例如 SP + A => 'SPA'

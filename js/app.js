@@ -1,11 +1,14 @@
 // Alpine 元件:標題產生器邏輯。
 // 於 alpine:init 註冊 titleGen()。狀態流程:模式 → 難度 → Clear → 搜尋 → 產生標題 → 複製。
 document.addEventListener('alpine:init', () => {
-  Alpine.data('titleGen', () => ({
-    gameId: 'iidx',
-    mode: '',          // 'SP' | 'DP'
-    diffCode: '',      // 'B' | 'N' | 'H' | 'A' | 'L'
-    clear: '',         // Clear 類型字串
+  Alpine.data('titleGen', () => {
+   const gameId = 'iidx';
+   const defaults = (window.GAMES[gameId] && window.GAMES[gameId].defaults) || {};
+   return {
+    gameId,
+    mode: defaults.mode || '',      // 'SP' | 'DP'
+    diffCode: defaults.diffCode || '', // 'N' | 'H' | 'A' | 'L'
+    clear: defaults.clear || '',    // Clear 類型字串
     query: '',         // 搜尋字串
     selectedSong: null,
     copied: false,
@@ -112,5 +115,6 @@ document.addEventListener('alpine:init', () => {
       try { document.execCommand('copy'); } catch (e) {}
       document.body.removeChild(ta);
     },
-  }));
+   };
+  });
 });

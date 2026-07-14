@@ -52,7 +52,7 @@
     <!-- 步驟二:難度 -->
     <section class="mb-6">
       <h2 class="mb-2 text-sm font-semibold text-slate-300">2. 難度</h2>
-      <div class="grid grid-cols-2 gap-2 sm:grid-cols-5">
+      <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <template x-for="d in game.difficulties" :key="d.code">
           <button type="button" @click="setDiff(d.code)"
                   :class="diffCode === d.code ? 'bg-sky-600 border-sky-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500'"
