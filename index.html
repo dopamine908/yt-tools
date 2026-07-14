@@ -15,6 +15,32 @@
 
   <style>
     [x-cloak] { display: none !important; }
+
+    /* IIDX 官方難度色:未選為框線+文字著色,選取為整顆填滿 */
+    .diff-btn {
+      border: 1px solid;
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #0f172a; /* slate-900 */
+      transition: all 0.15s;
+      cursor: pointer;
+    }
+    .diff-normal      { color: #4a90d9; border-color: #2c4a66; }
+    .diff-hyper       { color: #e0a41f; border-color: #6a5320; }
+    .diff-another     { color: #e3564b; border-color: #6a2f2c; }
+    .diff-leggendaria { color: #c840e0; border-color: #5a2a66; }
+
+    .diff-normal:hover      { border-color: #4a90d9; }
+    .diff-hyper:hover       { border-color: #e0a41f; }
+    .diff-another:hover     { border-color: #e3564b; }
+    .diff-leggendaria:hover { border-color: #c840e0; }
+
+    .diff-normal.is-active      { background: #2f80d6; border-color: #2f80d6; color: #fff; }
+    .diff-hyper.is-active       { background: #e0982a; border-color: #e0982a; color: #1a1200; }
+    .diff-another.is-active     { background: #dc3c33; border-color: #dc3c33; color: #fff; }
+    .diff-leggendaria.is-active { background: #b825d4; border-color: #b825d4; color: #fff; }
   </style>
 </head>
 <body class="min-h-screen bg-slate-950 text-slate-100 antialiased">
@@ -69,8 +95,8 @@
             <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <template x-for="d in game.difficulties" :key="d.code">
                 <button type="button" @click="setDiff(d.code)"
-                        :class="diffCode === d.code ? 'bg-sky-600 border-sky-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500'"
-                        class="rounded-lg border px-2 py-2 text-xs font-medium transition"
+                        class="diff-btn"
+                        :class="'diff-' + d.color + (diffCode === d.code ? ' is-active' : '')"
                         x-text="d.name"></button>
               </template>
             </div>

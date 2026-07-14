@@ -11,10 +11,10 @@ window.GAMES = {
     modes: ['SP', 'DP'],
     // 步驟二:難度(name = 顯示用,code = 標題代碼)
     difficulties: [
-      { name: 'NORMAL',      code: 'N' },
-      { name: 'HYPER',       code: 'H' },
-      { name: 'ANOTHER',     code: 'A' },
-      { name: 'LEGGENDARIA', code: 'L' },
+      { name: 'NORMAL',      code: 'N', color: 'normal' },      // 藍
+      { name: 'HYPER',       code: 'H', color: 'hyper' },       // 黃/橘
+      { name: 'ANOTHER',     code: 'A', color: 'another' },     // 紅
+      { name: 'LEGGENDARIA', code: 'L', color: 'leggendaria' }, // 紫
     ],
     // 步驟三:Clear 類型
     clears: ['NORMAL CLEAR', 'HARD CLEAR', 'FULL COMBO'],
