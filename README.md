@@ -1,7 +1,8 @@
 # yt-tools — YouTube 影片標題產生器
 
 產生 rhythm game 影片標題的小工具。純靜態 HTML + CDN,無需安裝或打包。
-目前支援 **beatmania IIDX**,並以 config 驅動,方便日後擴充其他遊戲。
+頂部 nav 以分頁切換遊戲、用 hash 路由(`#iidx`、`#ddr`…),進站預設 **beatmania IIDX**。
+目前 IIDX 已實作;DDR / GITADORA / CHUNITHM 為預留空頁。整體 config 驅動,方便擴充。
 
 ## 使用
 
@@ -52,5 +53,6 @@ window.IIDX_SONGS = [
 
 ## 新增其他遊戲
 
-在 `js/games.js` 的 `GAMES` 物件加一筆設定（`modes` / `difficulties` / `clears` /
-`searchKeys` / `chartKey` / `buildTitle`）即可，UI 不需改動。
+遊戲已列在 `js/games.js` 的 `GAMES` 物件並顯示於 nav。要讓某遊戲從空頁變成可用:
+補齊其設定（`modes` / `difficulties` / `clears` / `searchKeys` / `chartKey` /
+`buildTitle` / `defaults` / `songs`）並把 `implemented` 設為 `true` 即可，UI 不需改動。

@@ -4,6 +4,7 @@ window.GAMES = {
   iidx: {
     id: 'iidx',
     label: 'beatmania IIDX',
+    implemented: true,
     // 回傳歌曲陣列(由 data/iidx-songs.js 提供)
     songs: () => window.IIDX_SONGS || [],
     // 步驟一:模式
@@ -27,5 +28,20 @@ window.GAMES = {
     buildTitle: ({ song, mode, diff, clear }) =>
       `Beatmania IIDX 33 ${song.title} ${mode}${diff.code} ${clear}`,
   },
-  // 未來的其他遊戲寫在這裡……
+  // 以下為預留的空頁(尚未實作)。之後補齊設定並把 implemented 設為 true 即可。
+  ddr: {
+    id: 'ddr',
+    label: 'DDR',
+    implemented: false,
+  },
+  gitadora: {
+    id: 'gitadora',
+    label: 'GITADORA',
+    implemented: false,
+  },
+  chunithm: {
+    id: 'chunithm',
+    label: 'CHUNITHM',
+    implemented: false,
+  },
 };

@@ -15,16 +15,41 @@ document.addEventListener('alpine:init', () => {
     _fuse: null,
     _fuseGameId: null,
 
+    // ── 初始化 + hash 路由 ──
+    init() {
+      const fromHash = location.hash.slice(1);
+      this.switchGame(window.GAMES[fromHash] ? fromHash : 'iidx');
+      window.addEventListener('hashchange', () => {
+        const id = location.hash.slice(1);
+        if (window.GAMES[id] && id !== this.gameId) this.switchGame(id);
+      });
+    },
+    // 切換遊戲:更新 hash,並以該遊戲的 defaults 重置狀態
+    switchGame(id) {
+      if (!window.GAMES[id]) return;
+      this.gameId = id;
+      const d = window.GAMES[id].defaults || {};
+      this.mode = d.mode || '';
+      this.diffCode = d.diffCode || '';
+      this.clear = d.clear || '';
+      this.query = '';
+      this.selectedSong = null;
+      this.copied = false;
+      this._fuse = null;
+      this._fuseGameId = null;
+      if (location.hash.slice(1) !== id) location.hash = id;
+    },
+
     // ── 讀取目前遊戲設定 ──
     get game() {
       return window.GAMES[this.gameId];
     },
     get diff() {
-      return this.game.difficulties.find((d) => d.code === this.diffCode) || null;
+      return (this.game.difficulties || []).find((d) => d.code === this.diffCode) || null;
     },
     // 目前選定的譜面 key,例如 'DPA';模式或難度未選則為 null
     get chartKey() {
-      if (!this.mode || !this.diff) return null;
+      if (!this.mode || !this.diff || !this.game.chartKey) return null;
       return this.game.chartKey(this.mode, this.diff);
     },
 
