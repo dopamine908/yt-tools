@@ -48,6 +48,22 @@ function evalTables(titleSrc, actSrc) {
   return { titletbl: ctx.titletbl, actbl: ctx.actbl };
 }
 
+// textage 的曲名/artist 可能夾帶 HTML(如 <font color=...>、<div class=ltmodel>）與 HTML entity,
+// 這些只用於它自家網站上色,對我們是雜訊 → 去標籤 + 還原常見 entity。
+function cleanText(s) {
+  if (typeof s !== 'string') return '';
+  return s
+    .replace(/<[^>]*>/g, '')                 // 去掉所有 HTML 標籤
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#0?39;|&apos;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function decodeCharts(actRow) {
   const charts = {};
   for (const [code, idx] of Object.entries(CHART_COLUMNS)) {
@@ -60,21 +76,22 @@ function decodeCharts(actRow) {
 function buildSongs(titletbl, actbl) {
   const songs = [];
   for (const [key, t] of Object.entries(titletbl)) {
-    const title = t[5];
+    const title = cleanText(t[5]);
     const actRow = actbl[key];
-    if (typeof title !== 'string' || !title || !Array.isArray(actRow)) continue;
+    if (!title || !Array.isArray(actRow)) continue;
     const charts = decodeCharts(actRow);
     if (Object.keys(charts).length === 0) continue; // 沒有任何譜面 → 略過(課題/非歌曲等)
 
     const song = {
       key,
-      title: title.trim(),
-      artist: typeof t[4] === 'string' ? t[4].trim() : '',
-      genre: typeof t[3] === 'string' ? t[3].trim() : '',
+      title,
+      artist: cleanText(t[4]),
+      genre: cleanText(t[3]),
       version: typeof t[0] === 'number' ? t[0] : null,
       charts,
     };
-    if (typeof t[6] === 'string' && t[6].trim()) song.subtitle = t[6].trim();
+    const subtitle = cleanText(t[6]);
+    if (subtitle) song.subtitle = subtitle;
     songs.push(song);
   }
   songs.sort((a, b) => a.title.localeCompare(b.title, 'ja'));
