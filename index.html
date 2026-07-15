@@ -41,6 +41,13 @@
     .diff-hyper.is-active       { background: #e0982a; border-color: #e0982a; color: #1a1200; }
     .diff-another.is-active     { background: #dc3c33; border-color: #dc3c33; color: #fff; }
     .diff-leggendaria.is-active { background: #b825d4; border-color: #b825d4; color: #fff; }
+
+    /* 搜尋結果的等級 chip:沿用難度色(淡色底 + 該難度文字色) */
+    .badge { border: 1px solid transparent; }
+    .badge-normal      { color: #6fb1ec; background: rgba(74, 144, 217, 0.15); border-color: rgba(74, 144, 217, 0.35); }
+    .badge-hyper       { color: #f0bf55; background: rgba(224, 164, 31, 0.15); border-color: rgba(224, 164, 31, 0.35); }
+    .badge-another     { color: #f0837a; background: rgba(227, 86, 75, 0.15);  border-color: rgba(227, 86, 75, 0.35); }
+    .badge-leggendaria { color: #de7cee; background: rgba(200, 64, 224, 0.15); border-color: rgba(200, 64, 224, 0.35); }
   </style>
 </head>
 <body class="min-h-screen bg-slate-950 text-slate-100 antialiased">
@@ -142,7 +149,8 @@
                         <span class="block truncate text-sm text-slate-100" x-text="s.title"></span>
                         <span class="block truncate text-xs text-slate-500" x-text="s.artist"></span>
                       </span>
-                      <span class="shrink-0 rounded bg-slate-800 px-2 py-0.5 font-mono text-xs text-sky-300">
+                      <span class="badge shrink-0 rounded px-2 py-0.5 font-mono text-xs"
+                            :class="diff ? 'badge-' + diff.color : ''">
                         <span x-text="chartKey"></span> ☆<span x-text="levelOf(s)"></span>
                       </span>
                     </button>
