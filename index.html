@@ -9,6 +9,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
   <script src="data/iidx-songs.js"></script>
+  <script src="data/ddr-songs.js"></script>
   <script src="js/games.js"></script>
   <script src="js/app.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
@@ -42,12 +43,32 @@
     .diff-another.is-active     { background: #dc3c33; border-color: #dc3c33; color: #fff; }
     .diff-leggendaria.is-active { background: #b825d4; border-color: #b825d4; color: #fff; }
 
+    /* DDR 官方難度色:BASIC 黃 / DIFFICULT 紅 / EXPERT 綠 / CHALLENGE 紫紅 */
+    .diff-basic      { color: #f0b429; border-color: #6a5320; }
+    .diff-difficult  { color: #ef5350; border-color: #6a2f2c; }
+    .diff-expert     { color: #35c46a; border-color: #285138; }
+    .diff-challenge  { color: #e457c8; border-color: #5a2a55; }
+
+    .diff-basic:hover      { border-color: #f0b429; }
+    .diff-difficult:hover  { border-color: #ef5350; }
+    .diff-expert:hover     { border-color: #35c46a; }
+    .diff-challenge:hover  { border-color: #e457c8; }
+
+    .diff-basic.is-active      { background: #e0982a; border-color: #e0982a; color: #1a1200; }
+    .diff-difficult.is-active  { background: #dc3c33; border-color: #dc3c33; color: #fff; }
+    .diff-expert.is-active     { background: #1f9d52; border-color: #1f9d52; color: #fff; }
+    .diff-challenge.is-active  { background: #c8259e; border-color: #c8259e; color: #fff; }
+
     /* 搜尋結果的等級 chip:沿用難度色(淡色底 + 該難度文字色) */
     .badge { border: 1px solid transparent; }
     .badge-normal      { color: #6fb1ec; background: rgba(74, 144, 217, 0.15); border-color: rgba(74, 144, 217, 0.35); }
     .badge-hyper       { color: #f0bf55; background: rgba(224, 164, 31, 0.15); border-color: rgba(224, 164, 31, 0.35); }
     .badge-another     { color: #f0837a; background: rgba(227, 86, 75, 0.15);  border-color: rgba(227, 86, 75, 0.35); }
     .badge-leggendaria { color: #de7cee; background: rgba(200, 64, 224, 0.15); border-color: rgba(200, 64, 224, 0.35); }
+    .badge-basic       { color: #f0bf55; background: rgba(224, 164, 31, 0.15); border-color: rgba(224, 164, 31, 0.35); }
+    .badge-difficult   { color: #f0837a; background: rgba(227, 86, 75, 0.15);  border-color: rgba(227, 86, 75, 0.35); }
+    .badge-expert      { color: #5fd98a; background: rgba(31, 157, 82, 0.18);  border-color: rgba(31, 157, 82, 0.4); }
+    .badge-challenge   { color: #ee7cd8; background: rgba(200, 37, 158, 0.15); border-color: rgba(200, 37, 158, 0.4); }
   </style>
 </head>
 <body class="min-h-screen bg-slate-950 text-slate-100 antialiased">
@@ -109,22 +130,35 @@
             </div>
           </section>
 
-          <!-- 步驟三:Clear -->
-          <section class="mb-6">
-            <h2 class="mb-2 text-sm font-semibold text-slate-300">3. Clear 類型</h2>
-            <div class="flex flex-wrap gap-2">
-              <template x-for="c in game.clears" :key="c">
-                <button type="button" @click="clear = c; copied = false"
-                        :class="clear === c ? 'bg-sky-600 border-sky-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500'"
-                        class="rounded-lg border px-4 py-2 text-sm font-medium transition"
-                        x-text="c"></button>
+          <!-- 步驟三起:各遊戲的額外選擇器(Clear / 過關評級 / FLARE…) -->
+          <template x-for="(s, idx) in selectors" :key="s.key">
+            <section class="mb-6">
+              <div class="mb-2 flex items-center gap-3">
+                <h2 class="text-sm font-semibold text-slate-300" x-text="(idx + 3) + '. ' + s.label"></h2>
+                <template x-if="s.optional">
+                  <button type="button" @click="toggleOptional(s.key)"
+                          :class="optionalOn[s.key] ? 'bg-sky-600 text-white' : 'bg-slate-800 text-slate-400'"
+                          class="rounded px-2 py-0.5 text-xs font-medium transition"
+                          x-text="optionalOn[s.key] ? '開啟' : '關閉'"></button>
+                </template>
+              </div>
+              <div class="flex flex-wrap gap-2" x-show="!s.optional || optionalOn[s.key]">
+                <template x-for="opt in s.options" :key="opt">
+                  <button type="button" @click="selectOption(s.key, opt)"
+                          :class="values[s.key] === opt ? 'bg-sky-600 border-sky-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500'"
+                          class="rounded-lg border px-3 py-1.5 text-sm font-medium transition"
+                          x-text="(s.prefix || '') + opt"></button>
+                </template>
+              </div>
+              <template x-if="s.optional && !optionalOn[s.key]">
+                <p class="text-xs text-slate-500">已關閉，標題不含此欄。</p>
               </template>
-            </div>
-          </section>
+            </section>
+          </template>
 
-          <!-- 步驟四:搜尋歌曲 -->
+          <!-- 搜尋歌曲 -->
           <section class="mb-6">
-            <h2 class="mb-2 text-sm font-semibold text-slate-300">4. 搜尋歌曲</h2>
+            <h2 class="mb-2 text-sm font-semibold text-slate-300" x-text="(selectors.length + 3) + '. 搜尋歌曲'"></h2>
             <template x-if="!chartKey">
               <p class="rounded-lg border border-dashed border-slate-700 px-3 py-3 text-sm text-slate-500">
                 請先選擇「模式」與「難度」，才會依譜面過濾搜尋結果。
@@ -150,9 +184,8 @@
                         <span class="block truncate text-xs text-slate-500" x-text="s.artist"></span>
                       </span>
                       <span class="badge shrink-0 rounded px-2 py-0.5 font-mono text-xs"
-                            :class="diff ? 'badge-' + diff.color : ''">
-                        <span x-text="chartKey"></span> ☆<span x-text="levelOf(s)"></span>
-                      </span>
+                            :class="diff ? 'badge-' + diff.color : ''"
+                            x-text="chartKey + ' ' + (game.levelPrefix || '') + levelOf(s)"></span>
                     </button>
                   </li>
                 </template>

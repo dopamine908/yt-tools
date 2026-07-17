@@ -1,15 +1,13 @@
-// Alpine 元件:標題產生器邏輯。
-// 於 alpine:init 註冊 titleGen()。狀態流程:模式 → 難度 → Clear → 搜尋 → 產生標題 → 複製。
+// Alpine 元件:標題產生器邏輯(依 js/games.js 的設定驅動,支援多遊戲)。
+// 流程:模式 → 難度 → 各 selector(如 Clear / 過關評級 / FLARE)→ 搜尋 → 產生標題 → 複製。
 document.addEventListener('alpine:init', () => {
-  Alpine.data('titleGen', () => {
-   const gameId = 'iidx';
-   const defaults = (window.GAMES[gameId] && window.GAMES[gameId].defaults) || {};
-   return {
-    gameId,
-    mode: defaults.mode || '',      // 'SP' | 'DP'
-    diffCode: defaults.diffCode || '', // 'N' | 'H' | 'A' | 'L'
-    clear: defaults.clear || '',    // Clear 類型字串
-    query: '',         // 搜尋字串
+  Alpine.data('titleGen', () => ({
+    gameId: 'iidx',
+    mode: '',          // 'SP' | 'DP'
+    diffCode: '',      // 難度代碼
+    values: {},        // selectorKey -> 選中的選項
+    optionalOn: {},    // selectorKey -> 是否開啟(僅 optional selector)
+    query: '',
     selectedSong: null,
     copied: false,
     _fuse: null,
@@ -31,7 +29,8 @@ document.addEventListener('alpine:init', () => {
       const d = window.GAMES[id].defaults || {};
       this.mode = d.mode || '';
       this.diffCode = d.diffCode || '';
-      this.clear = d.clear || '';
+      this.values = Object.assign({}, d.values);
+      this.optionalOn = Object.assign({}, d.optionalOn);
       this.query = '';
       this.selectedSong = null;
       this.copied = false;
@@ -44,10 +43,13 @@ document.addEventListener('alpine:init', () => {
     get game() {
       return window.GAMES[this.gameId];
     },
+    get selectors() {
+      return this.game.selectors || [];
+    },
     get diff() {
       return (this.game.difficulties || []).find((d) => d.code === this.diffCode) || null;
     },
-    // 目前選定的譜面 key,例如 'DPA';模式或難度未選則為 null
+    // 目前選定的譜面 key,例如 'DPA' / 'EDP';模式或難度未選則為 null
     get chartKey() {
       if (!this.mode || !this.diff || !this.game.chartKey) return null;
       return this.game.chartKey(this.mode, this.diff);
@@ -56,11 +58,21 @@ document.addEventListener('alpine:init', () => {
     // ── 選單操作 ──
     setMode(m) {
       this.mode = m;
+      this.copied = false;
       this._pruneSelection();
     },
     setDiff(code) {
       this.diffCode = code;
+      this.copied = false;
       this._pruneSelection();
+    },
+    selectOption(key, opt) {
+      this.values[key] = opt;
+      this.copied = false;
+    },
+    toggleOptional(key) {
+      this.optionalOn[key] = !this.optionalOn[key];
+      this.copied = false;
     },
     // 若已選歌曲在新的模式/難度下沒有該譜面,清掉選取
     _pruneSelection() {
@@ -92,7 +104,6 @@ document.addEventListener('alpine:init', () => {
       }
       return list.slice(0, 50);
     },
-    // 某首歌在目前 chartKey 下的 ☆等級
     levelOf(song) {
       return this.chartKey ? song.charts[this.chartKey] : null;
     },
@@ -102,8 +113,22 @@ document.addEventListener('alpine:init', () => {
     },
 
     // ── 標題 ──
+    // 各 selector 組好的字串:關閉的 optional 為 ''、否則為 (prefix + 選項)
+    get v() {
+      const out = {};
+      for (const s of this.selectors) {
+        if (s.optional && !this.optionalOn[s.key]) { out[s.key] = ''; continue; }
+        const val = this.values[s.key];
+        out[s.key] = val ? (s.prefix || '') + val : '';
+      }
+      return out;
+    },
     get ready() {
-      return !!(this.mode && this.diff && this.clear && this.selectedSong);
+      if (!this.mode || !this.diff || !this.selectedSong) return false;
+      for (const s of this.selectors) {
+        if (!s.optional && !this.values[s.key]) return false;
+      }
+      return true;
     },
     get title() {
       if (!this.ready) return '';
@@ -111,7 +136,7 @@ document.addEventListener('alpine:init', () => {
         song: this.selectedSong,
         mode: this.mode,
         diff: this.diff,
-        clear: this.clear,
+        v: this.v,
       });
     },
 
@@ -140,6 +165,5 @@ document.addEventListener('alpine:init', () => {
       try { document.execCommand('copy'); } catch (e) {}
       document.body.removeChild(ta);
     },
-   };
-  });
+  }));
 });
