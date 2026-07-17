@@ -20,14 +20,27 @@
 
 ## 更新歌曲清單
 
-歌曲資料來自 [textage.cc](https://textage.cc/score/)。執行：
+執行更新腳本，每次都會重新抓取來源並整檔覆蓋對應的資料檔（需要 Node 18+，使用內建 `fetch`）：
 
 ```bash
 node scripts/build-songs.mjs
 ```
 
 會抓取 textage 的 `titletbl.js` / `actbl.js`（Shift_JIS），解析後覆寫 `data/iidx-songs.js`。
-需要 Node 18+（使用內建 `fetch`）。
+
+## 資料來源
+
+| 遊戲 | 來源 | 端點 / 說明 |
+|---|---|---|
+| **beatmania IIDX** | [textage.cc](https://textage.cc/score/) | `titletbl.js`（曲名/曲風/artist）+ `actbl.js`（各譜面 ☆等級）；Shift_JIS 編碼的 JS 賦值 |
+| **DDR / GITADORA / CHUNITHM** | [arcade-songs](https://arcade-songs.zetaraku.dev/)（開源專案 [`zetaraku/arcade-songs`](https://github.com/zetaraku/arcade-songs)，MIT） | 標準 JSON：`https://dp4p6x0xfi5o9.cloudfront.net/<gameCode>/data.json`（`gameCode` = `ddr` / `gitadora` / `chunithm`） |
+
+註:
+
+- arcade-songs 的網站(`arcade-songs.zetaraku.dev`)與資料檔(CloudFront)分屬不同網域;上述 CloudFront 端點來自其原始碼設定檔
+  [`data/sites.json`](https://github.com/zetaraku/arcade-songs/blob/master/data/sites.json) 的 `dataSourceUrl`,加上程式碼(`stores/data.ts`)實際請求的 `/data.json`。
+- 這是依原始碼推得的非公開端點,來源方未承諾其穩定性。**較穩健的取法**:更新腳本先抓 `sites.json` 讀出當下的 `dataSourceUrl`,再組 `/data.json`,以便來源換 CDN 時自動跟上。
+- 兩個來源皆為第三方(非 KONAMI 官方),由社群維護,格式可能變動。
 
 ## 檔案結構
 
