@@ -61,7 +61,7 @@ window.GAMES = {
     searchKeys: ['title', 'artist', 'key'],
     levelPrefix: 'Lv.', // DDR 用數字等級,非 ☆
     chartKey: (mode, diff) => `${diff.code}${mode}`, // 例:DDP、BSP
-    defaults: { mode: 'DP', diffCode: 'E', values: { grade: 'FULL COMBO', flare: 'I' }, optionalOn: { flare: false } },
+    defaults: { mode: 'DP', diffCode: 'D', values: { grade: 'FULL COMBO', flare: 'I' }, optionalOn: { flare: false } },
     buildTitle: ({ song, mode, diff, v }) => {
       const base = `DDR World ${song.title} ${diff.code}${mode} ${v.grade}`;
       return v.flare ? `${base} ${v.flare}` : base;
