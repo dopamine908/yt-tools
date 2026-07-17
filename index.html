@@ -81,10 +81,12 @@
            class="shrink-0 text-lg font-bold tracking-tight">🎬 標題產生器</a>
         <div class="-mx-1 flex gap-1 overflow-x-auto">
           <template x-for="(g, id) in window.GAMES" :key="id">
-            <button type="button" @click="switchGame(id)"
-                    :class="gameId === id ? 'bg-sky-600 text-white' : 'text-slate-300 hover:bg-slate-800'"
-                    class="shrink-0 rounded-md px-3 py-1.5 text-sm font-medium transition"
-                    x-text="g.label"></button>
+            <template x-if="g.implemented">
+              <button type="button" @click="switchGame(id)"
+                      :class="gameId === id ? 'bg-sky-600 text-white' : 'text-slate-300 hover:bg-slate-800'"
+                      class="shrink-0 rounded-md px-3 py-1.5 text-sm font-medium transition"
+                      x-text="g.label"></button>
+            </template>
           </template>
         </div>
       </div>
