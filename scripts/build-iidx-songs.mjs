@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // 由 textage.cc 產生 data/iidx-songs.js。
 //
-// 用法:  node scripts/build-songs.mjs
+// 用法:  node scripts/build-iidx-songs.mjs
 //
 // 做法(非爬 HTML):
 //   1. 抓 textage 兩個資料檔(內容是 Shift_JIS 編碼的 JS 賦值)。
@@ -112,7 +112,7 @@ async function main() {
   if (songs.length === 0) throw new Error('產出 0 首歌,疑似來源格式改變,已中止(未覆蓋現有檔案)');
 
   const header =
-    '// ⚠ 本檔由 scripts/build-songs.mjs 從 textage.cc 產生,請勿手動編輯。\n' +
+    '// ⚠ 本檔由 scripts/build-iidx-songs.mjs 從 textage.cc 產生,請勿手動編輯。\n' +
     `// 產生曲數:${songs.length}\n` +
     '// charts 的 key = 模式+難度代碼(SP/DP × B/N/H/A/L),value = ☆等級。\n';
   const body = 'window.IIDX_SONGS = ' + JSON.stringify(songs) + ';\n';

@@ -22,7 +22,7 @@
 執行更新腳本，每次都會重新抓取來源並整檔覆蓋對應的資料檔（需要 Node 18+，使用內建 `fetch`）：
 
 ```bash
-node scripts/build-songs.mjs        # IIDX → data/iidx-songs.js（來源 textage.cc，Shift_JIS）
+node scripts/build-iidx-songs.mjs   # IIDX → data/iidx-songs.js（來源 textage.cc，Shift_JIS）
 node scripts/build-ddr-songs.mjs    # DDR  → data/ddr-songs.js（來源 arcade-songs）
 ```
 
@@ -48,8 +48,8 @@ js/games.js              遊戲設定登錄表（多遊戲擴充核心）
 js/app.js                Alpine 元件：狀態、過濾、模糊搜尋、標題、複製
 data/iidx-songs.js       IIDX 歌曲資料（由更新腳本產生，勿手改）
 data/ddr-songs.js        DDR 歌曲資料（由更新腳本產生，勿手改）
-scripts/build-songs.mjs      IIDX 更新腳本（textage.cc）
-scripts/build-ddr-songs.mjs  DDR 更新腳本（arcade-songs）
+scripts/build-iidx-songs.mjs  IIDX 更新腳本（textage.cc）
+scripts/build-ddr-songs.mjs   DDR 更新腳本（arcade-songs）
 ```
 
 ## 資料格式
