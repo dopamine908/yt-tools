@@ -1,0 +1,63 @@
+name: 更新 IIDX 歌曲清單
+
+on:
+  schedule:
+    # 每週一 00:00 UTC(台北時間 08:00)
+    - cron: '0 0 * * 1'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-iidx-songs
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout（含完整歷史與 tag）
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 產生 IIDX 歌曲清單
+        run: node scripts/build-iidx-songs.mjs
+
+      - name: 有變化才 commit、遞增 tag 並推送
+        run: |
+          set -euo pipefail
+
+          # 無變化 → 直接結束(不 commit、不 tag)
+          if git diff --quiet -- data/iidx-songs.js; then
+            echo "資料無變化,略過。"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # 取最新的 dev-X.Y.Z,將 patch(Z)加一;若不存在則從 1.0.0 起
+          latest="$(git tag -l 'dev-*' | sed 's/^dev-//' | sort -t. -k1,1n -k2,2n -k3,3n | tail -n1)"
+          if [ -z "$latest" ]; then
+            next="1.0.0"
+          else
+            IFS=. read -r MAJOR MINOR PATCH <<< "$latest"
+            PATCH=$((PATCH + 1))
+            next="${MAJOR}.${MINOR}.${PATCH}"
+          fi
+          newtag="dev-${next}"
+          echo "新 tag:${newtag}"
+
+          git add data/iidx-songs.js
+          git commit -m "更新 IIDX 歌曲清單"
+          git tag -a "${newtag}" -m "更新 IIDX 歌曲清單"
+
+          git push origin HEAD:main
+          git push origin "${newtag}"
