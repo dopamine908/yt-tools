@@ -1,9 +1,10 @@
 name: 更新 IIDX 歌曲清單
 
 on:
-  schedule:
-    # 每週一 00:00 UTC(台北時間 08:00)
-    - cron: '0 0 * * 1'
+  # 定時觸發(先註解,改用手動測試;要啟用時取消註解即可)
+  # schedule:
+  #   # 每週一 00:00 UTC(台北時間 08:00)
+  #   - cron: '0 0 * * 1'
   workflow_dispatch: {}
 
 permissions:
