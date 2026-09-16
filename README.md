@@ -14,7 +14,7 @@
 
 | 遊戲 | 難度 | 選擇器 | 標題格式 / 範例 |
 |---|---|---|---|
-| **IIDX** | NORMAL / HYPER / ANOTHER / LEGGENDARIA | Clear 類型 | `Beatmania IIDX 33 {歌名} {模式}{難度} {Clear}`<br>`Beatmania IIDX 33 冥 DPA HARD CLEAR` |
+| **IIDX** | NORMAL / HYPER / ANOTHER / LEGGENDARIA | Clear 類型 | `Beatmania IIDX 34 {歌名} {模式}{難度} {Clear}`<br>`Beatmania IIDX 34 冥 DPA HARD CLEAR` |
 | **DDR** | BASIC / DIFFICULT / EXPERT / CHALLENGE | 過關評級、FLARE（可開關） | `DDR World {歌名} {難度}{模式} {評級} [FLARE 等級]`<br>`DDR World The Ashes of Boreas DDP FULL COMBO FLARE I` |
 
 ## 更新歌曲清單

@@ -29,7 +29,7 @@ window.GAMES = {
     chartKey: (mode, diff) => `${mode}${diff.code}`, // 例:DPA
     defaults: { mode: 'DP', diffCode: 'A', values: { clear: 'HARD CLEAR' } },
     buildTitle: ({ song, mode, diff, v }) =>
-      `Beatmania IIDX 33 ${song.title} ${mode}${diff.code} ${v.clear}`,
+      `Beatmania IIDX 34 ${song.title} ${mode}${diff.code} ${v.clear}`,
   },
 
   ddr: {
