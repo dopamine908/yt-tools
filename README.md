@@ -14,7 +14,7 @@
 
 | 遊戲 | 難度 | 選擇器 | 標題格式 / 範例 |
 |---|---|---|---|
-| **IIDX** | NORMAL / HYPER / ANOTHER / LEGGENDARIA | Clear 類型 | `Beatmania IIDX 34 {歌名} {模式}{難度} {Clear}`<br>`Beatmania IIDX 34 冥 DPA HARD CLEAR` |
+| **IIDX** | NORMAL / HYPER / ANOTHER / LEGGENDARIA | Clear 類型 | `Beatmania IIDX 34 {歌名} {模式}{難度} {Clear}`<br>`Beatmania IIDX 34 冥 DPA HARD CLEAR`<br>歌名含副標題，如 `History of dj TAKA - single style collection -` |
 | **DDR** | BASIC / DIFFICULT / EXPERT / CHALLENGE | 過關評級、FLARE（可開關） | `DDR World {歌名} {難度}{模式} {評級} [FLARE 等級]`<br>`DDR World The Ashes of Boreas DDP FULL COMBO FLARE I` |
 
 ## 更新歌曲清單
@@ -60,7 +60,8 @@ scripts/build-ddr-songs.mjs   DDR 更新腳本（arcade-songs）
 
 ```js
 // IIDX：charts key = 模式＋難度代碼（SP/DP × N/H/A/L），value = ☆等級
-{ key, title, artist, genre, version, charts: { SPA: 12, DPA: 12, DPH: 11 } }
+{ key, title, subtitle?, artist, genre, version, charts: { SPA: 12, DPA: 12, DPH: 11 } }
+// 前端載入時補上 fullTitle = title + ' ' + subtitle，搜尋 / 列表 / 標題皆用 fullTitle
 
 // DDR：charts key = 難度縮寫＋模式（B/D/E/C × SP/DP），value = 等級
 { key, title, artist, version, charts: { ESP: 13, EDP: 13, DDP: 9 } }

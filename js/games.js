@@ -8,12 +8,22 @@
 //   - prefix:顯示與標題會在選項前加上此字串(例如 FLARE)。
 // buildTitle({ song, mode, diff, v }):v 是各 selector 組好的字串(關閉的 optional 為空字串)。
 // chartKey(mode, diff):組出歌曲 charts 的 key,也是標題用的「難度 token」。
+// 補上 fullTitle = 曲名 + 副標題(textage 把副標題拆在 subtitle 欄,
+// 例:History of dj TAKA + "- single style collection -")。只處理一次。
+function withFullTitle(songs) {
+  if (songs && !songs._fullTitleReady) {
+    for (const s of songs) s.fullTitle = s.subtitle ? `${s.title} ${s.subtitle}` : s.title;
+    songs._fullTitleReady = true;
+  }
+  return songs;
+}
+
 window.GAMES = {
   iidx: {
     id: 'iidx',
     label: 'beatmania IIDX',
     implemented: true,
-    songs: () => window.IIDX_SONGS || [],
+    songs: () => withFullTitle(window.IIDX_SONGS || []),
     modes: ['SP', 'DP'],
     difficulties: [
       { name: 'NORMAL',      code: 'N', color: 'normal' },      // 藍
@@ -24,12 +34,12 @@ window.GAMES = {
     selectors: [
       { key: 'clear', label: 'Clear 類型', options: ['NORMAL CLEAR', 'HARD CLEAR', 'FULL COMBO'] },
     ],
-    searchKeys: ['title', 'artist', 'genre', 'key'],
+    searchKeys: ['fullTitle', 'artist', 'genre', 'key'],
     levelPrefix: '☆', // 搜尋結果等級的前綴顯示
     chartKey: (mode, diff) => `${mode}${diff.code}`, // 例:DPA
     defaults: { mode: 'DP', diffCode: 'A', values: { clear: 'HARD CLEAR' } },
     buildTitle: ({ song, mode, diff, v }) =>
-      `Beatmania IIDX 34 ${song.title} ${mode}${diff.code} ${v.clear}`,
+      `Beatmania IIDX 34 ${song.fullTitle || song.title} ${mode}${diff.code} ${v.clear}`,
   },
 
   ddr: {
